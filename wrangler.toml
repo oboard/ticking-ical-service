@@ -1,0 +1,9 @@
+name = "ticking-ical-service"
+main = "main.js"
+compatibility_date = "2024-01-01"
+
+[env.production]
+name = "ticking-ical-service"
+
+[env.development]
+name = "ticking-ical-service-dev"

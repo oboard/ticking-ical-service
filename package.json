@@ -1,0 +1,16 @@
+{
+  "name": "ticking-ical-service",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker service to export focus time data as iCal format",
+  "main": "main.js",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "preview": "wrangler deploy --env development"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  },
+  "author": "",
+  "license": "MIT"
+}
