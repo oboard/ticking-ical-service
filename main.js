@@ -20,7 +20,7 @@ export default {
         body: JSON.stringify({
           userId: Number(userId),
           page: 0,
-          size: 10000
+          size: 2000
         })
       })
 
