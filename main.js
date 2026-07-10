@@ -50,12 +50,29 @@ export default {
           // 如果依旧没有结束时间，就忽略该事件
           if (!end) return null
 
+          const duration = end - start - e.pauseTotalTime
+          // xx小时xx分钟
+          let durationText = ""
+          if (duration > 0) {
+            const hours = Math.floor(duration / 60 / 60 / 1000)
+            const minutes = Math.floor(duration / 60 / 1000) % 60
+            const seconds = Math.floor(duration / 1000) % 60
+            if (hours > 0) {
+              durationText = `${hours}小时${minutes}分钟`
+            } else if (minutes > 0) {
+              durationText = `${minutes}分钟${seconds}秒`
+            } else if (seconds > 0) {
+              durationText = `${seconds}秒`
+            }
+          }
+
           return `BEGIN:VEVENT
-UID:${e.uuid}@i99yun
+UID:${e.uuid}@ticking
 DTSTAMP:${formatDate(new Date())}
 DTSTART:${formatDate(start)}
 DTEND:${formatDate(end)}
 SUMMARY:${e.name}
+LOCATION:${durationText || ""}
 END:VEVENT`
         })
         .filter(Boolean)
@@ -63,7 +80,7 @@ END:VEVENT`
       // 生成 ICS 文件
       const ics = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//i99yun//FocusTime Export//CN
+PRODID:-//ticking//FocusTime Export//CN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 ${events.join("\n")}
