@@ -10,23 +10,26 @@ export default {
         return new Response("Missing token or userId", { status: 400 })
       }
 
-      // 请求 API
-      const apiResp = await fetch("https://todo.i99yun.com/v2/focus_time/get_pageable", {
-        method: "POST",
+      // 请求 API（v3：GET + query 参数，成功时直接返回 FocusTime 数组）
+      const apiUrl = new URL("https://todo.i99yun.com/api/v3/focus-times/pageable")
+      apiUrl.searchParams.set("userId", userId)
+      apiUrl.searchParams.set("page", "0")
+      apiUrl.searchParams.set("size", "2000")
+
+      const apiResp = await fetch(apiUrl.toString(), {
+        method: "GET",
         headers: {
-          "Content-Type": "application/json",
           "X-Token": token
-        },
-        body: JSON.stringify({
-          userId: Number(userId),
-          page: 0,
-          size: 2000
-        })
+        }
       })
+
+      if (!apiResp.ok) {
+        return new Response("API request failed: " + apiResp.status, { status: 502 })
+      }
 
       const apiData = await apiResp.json()
 
-      if (apiData.status !== 200 || !Array.isArray(apiData.data)) {
+      if (!Array.isArray(apiData)) {
         return new Response("Invalid API response", { status: 500 })
       }
 
@@ -36,13 +39,14 @@ export default {
       }
 
       // 生成事件
-      const events = apiData.data
+      const events = apiData
         .filter(e => e.isDeleted === 0 && e.state === 0)
         .map(e => {
           const start = new Date(e.startTime)
-          let end = e.endTime ? new Date(e.endTime) : null
+          // v3 返回毫秒时间戳，endTime=0 表示未结束
+          let end = e.endTime > 0 ? new Date(e.endTime) : null
 
-          // endTime=0，用 scheduledTime 补齐
+          // endTime=0，用 scheduledTime 补齐（均为毫秒时间戳）
           if (!end && e.scheduledTime > 0) {
             end = new Date(e.startTime + e.scheduledTime)
           }
